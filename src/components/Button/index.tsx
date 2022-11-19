@@ -11,10 +11,17 @@ export function Button({
   isLoading = false,
   type = "primary",
   children,
+  onPress,
   ...rest
 }: ButtonProps) {
+  function handlePress(pointerInside: boolean) {
+    if (isLoading) return;
+
+    if (onPress) onPress(pointerInside);
+  }
+
   return (
-    <Container type={type} {...rest}>
+    <Container type={type} onPress={handlePress} {...rest}>
       {isLoading ? <Loading /> : <Title>{children}</Title>}
     </Container>
   );
