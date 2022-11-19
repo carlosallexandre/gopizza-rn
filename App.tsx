@@ -10,6 +10,7 @@ import { DMSerifDisplay_400Regular } from "@expo-google-fonts/dm-serif-display";
 import theme from "./src/theme";
 
 import { Signin } from "@screens/Signin";
+import { AuthProvider } from "@hooks/auth";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -24,12 +25,14 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider theme={theme}>
-        <StatusBar
-          barStyle="light-content"
-          backgroundColor="transparent"
-          translucent
-        />
-        <Signin />
+        <AuthProvider>
+          <StatusBar
+            barStyle="light-content"
+            backgroundColor="transparent"
+            translucent
+          />
+          <Signin />
+        </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );

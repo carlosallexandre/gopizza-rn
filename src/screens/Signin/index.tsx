@@ -13,8 +13,23 @@ import {
   ForgotPasswordLabel,
   Title,
 } from "./styles";
+import { useState } from "react";
+import { useAuth } from "hooks/auth";
 
 export function Signin() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const { isAuthenticating, signIn, forgotPassword } = useAuth();
+
+  function handleSigin() {
+    signIn(email, password);
+  }
+
+  function handleForgotPassword() {
+    forgotPassword(email);
+  }
+
   return (
     <Container>
       <KeyboardAvoidingView
@@ -31,15 +46,27 @@ export function Signin() {
             type="secondary"
             autoCorrect={false}
             autoCapitalize="none"
+            onChangeText={setEmail}
           />
 
-          <Input placeholder="Senha" type="secondary" secureTextEntry />
+          <Input
+            placeholder="Senha"
+            type="secondary"
+            secureTextEntry
+            onChangeText={setPassword}
+          />
 
-          <ForgotPasswordButton>
+          <ForgotPasswordButton onPress={handleForgotPassword}>
             <ForgotPasswordLabel>Esqueci minha senha</ForgotPasswordLabel>
           </ForgotPasswordButton>
 
-          <Button type="secondary">Entrar</Button>
+          <Button
+            type="secondary"
+            onPress={handleSigin}
+            isLoading={isAuthenticating}
+          >
+            Entrar
+          </Button>
         </Content>
       </KeyboardAvoidingView>
     </Container>
