@@ -9,7 +9,7 @@ import { DMSerifDisplay_400Regular } from "@expo-google-fonts/dm-serif-display";
 
 import theme from "./src/theme";
 
-import { Product } from "@screens/Product";
+import { Home } from "@screens/Home";
 import { AuthProvider } from "@hooks/auth";
 
 export default function App() {
@@ -31,7 +31,7 @@ export default function App() {
             backgroundColor="transparent"
             translucent
           />
-          <Product />
+          <Home />
         </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
