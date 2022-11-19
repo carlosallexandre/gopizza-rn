@@ -1,12 +1,21 @@
-import { useState } from "react";
-import { Alert, Platform, ScrollView, TouchableOpacity } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Alert,
+  Platform,
+  ScrollView,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
 import storage from "@react-native-firebase/storage";
 import firestore from "@react-native-firebase/firestore";
 
+import { ProductScreenProps } from "@dtos/navigation";
+
 import { Input } from "@components/Input";
 import { Photo } from "@components/Photo";
+import { Button } from "@components/Button";
 import { ButtonBack } from "@components/ButtonBack";
 import { InputPrice } from "@components/InputPrice";
 
@@ -23,17 +32,67 @@ import {
   InputGroupHeader,
   MaxCharacters,
 } from "./styles";
-import { Button } from "components/Button";
 
-export function Product() {
+interface Product {
+  id: string;
+  name: string;
+  name_insensitive: string;
+  description: string;
+  image: {
+    path: string;
+    url: string;
+  };
+  price_sizes: {
+    p: string;
+    m: string;
+    g: string;
+  };
+}
+
+export function Product({ navigation, route }: ProductScreenProps) {
+  const hasProduct = useMemo(() => !!route.params?.id, [route]);
+
   const [isLoading, setIsLoading] = useState(false);
 
-  const [image, setImage] = useState("");
   const [name, setName] = useState("");
+  const [image, setImage] = useState("");
+  const [imagePath, setImagePath] = useState("");
   const [description, setDescription] = useState("");
   const [priceSizeP, setPriceSizeP] = useState("");
   const [priceSizeM, setPriceSizeM] = useState("");
   const [priceSizeG, setPriceSizeG] = useState("");
+
+  async function handleDelete() {
+    try {
+      await firestore().collection("pizzas").doc(route.params?.id).delete();
+      await storage().ref(imagePath).delete();
+      navigation.goBack();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function fetchProduct(id: string) {
+    try {
+      const doc = await firestore().collection<Product>("pizzas").doc(id).get();
+
+      const data = doc.data();
+      setName(data?.name ?? "");
+      setImage(data?.image.url ?? "");
+      setImagePath(data?.image.path ?? "");
+      setDescription(data?.description ?? "");
+      setPriceSizeP(data?.price_sizes.p ?? "");
+      setPriceSizeM(data?.price_sizes.m ?? "");
+      setPriceSizeG(data?.price_sizes.g ?? "");
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  useEffect(() => {
+    const productId = route.params?.id;
+    if (productId) fetchProduct(productId);
+  }, [route]);
 
   async function handlePickerImage() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -72,8 +131,9 @@ export function Product() {
 
       const fileName = new Date().getTime();
       const ref = storage().ref(`/pizzas/${fileName}.png`);
-      const img_url = await ref.getDownloadURL();
       await ref.putFile(image);
+
+      const img_url = await ref.getDownloadURL();
 
       await firestore()
         .collection("pizzas")
@@ -92,7 +152,7 @@ export function Product() {
           },
         });
 
-      Alert.alert("Cadastro", "Pizza adicionada com sucesso.");
+      navigation.navigate("home");
     } catch (err) {
       console.error(err);
       Alert.alert("Cadastro", "Não foi possível cadastrar.");
@@ -105,20 +165,26 @@ export function Product() {
     <Container behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Header>
-          <ButtonBack />
+          <ButtonBack onPress={() => navigation.goBack()} />
 
           <Title>Cadastrar</Title>
 
-          <TouchableOpacity>
-            <DeleteLabel>Deletar</DeleteLabel>
-          </TouchableOpacity>
+          {hasProduct ? (
+            <TouchableOpacity onPress={handleDelete}>
+              <DeleteLabel>Deletar</DeleteLabel>
+            </TouchableOpacity>
+          ) : (
+            <View style={{ width: 20 }} />
+          )}
         </Header>
 
         <Upload>
           <Photo uri={image} />
-          <PickImageButton type="secondary" onPress={handlePickerImage}>
-            Carregar
-          </PickImageButton>
+          {!hasProduct && (
+            <PickImageButton type="secondary" onPress={handlePickerImage}>
+              Carregar
+            </PickImageButton>
+          )}
         </Upload>
 
         <Form>
@@ -163,9 +229,11 @@ export function Product() {
             />
           </InputGroup>
 
-          <Button onPress={handleAdd} isLoading={isLoading}>
-            Cadastrar pizza
-          </Button>
+          {!hasProduct && (
+            <Button onPress={handleAdd} isLoading={isLoading}>
+              Cadastrar pizza
+            </Button>
+          )}
         </Form>
       </ScrollView>
     </Container>

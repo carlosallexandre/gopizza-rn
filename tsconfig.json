@@ -4,13 +4,14 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "*": ["src/*"],
+      // "*": ["src/*"],
       "@assets/*": ["src/assets/*"],
       "@components/*": ["src/components/*"],
       "@screens/*": ["src/screens/*"],
       "@services/*": ["src/services/*"],
       "@utils/*": ["src/utils/*"],
-      "@hooks/*": ["src/hooks/*"]
+      "@hooks/*": ["src/hooks/*"],
+      "@dtos/*": ["src/dtos/*"]
     }
   }
 }

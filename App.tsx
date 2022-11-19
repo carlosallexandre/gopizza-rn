@@ -8,8 +8,9 @@ import { useFonts, DMSans_400Regular } from "@expo-google-fonts/dm-sans";
 import { DMSerifDisplay_400Regular } from "@expo-google-fonts/dm-serif-display";
 
 import theme from "./src/theme";
+import { Routes } from "./src/routes";
+import { Orders } from "@screens/Orders";
 
-import { Home } from "@screens/Home";
 import { AuthProvider } from "@hooks/auth";
 
 export default function App() {
@@ -31,7 +32,7 @@ export default function App() {
             backgroundColor="transparent"
             translucent
           />
-          <Home />
+          <Orders />
         </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
