@@ -4,19 +4,19 @@ module.exports = function (api) {
     presets: ["babel-preset-expo"],
     plugins: [
       [
-        "module-resovler",
+        "module-resolver",
         {
-          extensions: [".js", ".ts", ".tsx", ".json"],
           root: ["./src"],
+          extensions: [".ts", ".tsx", ".js", ".json"],
           alias: {
             "@assets": "./src/assets",
             "@components": "./src/components",
             "@screens": "./src/screens",
             "@services": "./src/services",
-            "@utils": "./src/utils",
           },
         },
       ],
+      ["react-native-reanimated/plugin"],
     ],
   };
 };
