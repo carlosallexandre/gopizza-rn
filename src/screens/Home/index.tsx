@@ -67,7 +67,7 @@ export function Home() {
   function handleOpenProduct(productId: string) {
     return user?.isAdmin
       ? () => navigation.navigate("product", { id: productId })
-      : () => navigation.navigate("order");
+      : () => navigation.navigate("order", { id: productId });
   }
 
   function handleAddProduct() {

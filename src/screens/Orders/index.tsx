@@ -1,29 +1,52 @@
-import { useState } from "react";
 import { FlatList } from "react-native";
+import { useState, useEffect } from "react";
 
-import { OrderCard, StatusTypesProps } from "@components/OrderCard";
-
-import { Container, Header, Title, Divider } from "./styles";
+import { useAuth } from "@hooks/auth";
 import { useNavigation } from "@react-navigation/native";
 
-interface Order {
-  id: string;
-  status: StatusTypesProps;
-}
+import firestore from "@react-native-firebase/firestore";
+
+import { OrderCard, OrderProps } from "@components/OrderCard";
+
+import { Container, Header, Title, Divider } from "./styles";
+import { Alert } from "react-native";
 
 export function Orders() {
+  const { user } = useAuth();
   const navigation = useNavigation();
 
-  const [orders, setOrders] = useState<Order[]>([
-    { id: "1", status: "Preparando" },
-    { id: "2", status: "Pronto" },
-    { id: "3", status: "Entregue" },
-    { id: "4", status: "Preparando" },
-    { id: "5", status: "Preparando" },
-  ]);
+  const [orders, setOrders] = useState<OrderProps[]>([]);
 
-  function handleOpenOrder(orderId: string) {
-    return () => navigation.navigate("order", { id: orderId });
+  useEffect(() => {
+    const unsubscribe = firestore()
+      .collection<Omit<OrderProps, "id">>("orders")
+      .where("waiter_id", "==", user?.id)
+      .onSnapshot((snapshot) => {
+        setOrders(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+        );
+      });
+
+    return unsubscribe;
+  }, []);
+
+  function deliveryPizza(orderId: string) {
+    return () =>
+      firestore().collection("orders").doc(orderId).update({
+        status: "Entregue",
+      });
+  }
+
+  function handleDeliveryPizza(orderId: string) {
+    return () => {
+      Alert.alert("Pedido", "O pedido foi realmente entregue?", [
+        { text: "Não", style: "cancel" },
+        { text: "Sim", onPress: deliveryPizza(orderId) },
+      ]);
+    };
   }
 
   return (
@@ -37,9 +60,10 @@ export function Orders() {
         keyExtractor={(order) => order.id}
         renderItem={({ item, index }) => (
           <OrderCard
+            data={item}
             index={index}
-            status={item.status}
-            onPress={handleOpenOrder(item.id)}
+            enabled={item.status !== "Entregue"}
+            onPress={handleDeliveryPizza(item.id)}
           />
         )}
         numColumns={2}

@@ -11,28 +11,36 @@ import {
   StatusTypesProps,
 } from "./styles";
 
+export interface OrderProps {
+  id: string;
+  waiter_id: string;
+  quantity: string;
+  pizza_name: string;
+  pizza_image: string;
+  table_number: string;
+  status: StatusTypesProps;
+}
+
 interface OrderCardProps extends RectButtonProps {
   index: number;
-  status: StatusTypesProps;
+  data: OrderProps;
 }
 
 export type { StatusTypesProps };
 
-export function OrderCard({
-  index,
-  status = "Preparando",
-  ...rest
-}: OrderCardProps) {
+export function OrderCard({ index, data, ...rest }: OrderCardProps) {
   return (
     <Container index={index}>
       <Button {...rest}>
-        <Image source={{ uri: "https://github.com/carlosallexandre.png" }} />
+        <Image source={{ uri: data.pizza_image }} />
 
-        <Name>Nome</Name>
-        <Description>Mesa 5 . Qnt: 1</Description>
+        <Name>{data.pizza_name}</Name>
+        <Description>
+          Mesa {data.table_number} . Qnt: {data.quantity}
+        </Description>
 
-        <StatusContainer status={status}>
-          <StatusLabel status={status}>{status}</StatusLabel>
+        <StatusContainer status={data.status}>
+          <StatusLabel status={data.status}>{data.status}</StatusLabel>
         </StatusContainer>
       </Button>
     </Container>

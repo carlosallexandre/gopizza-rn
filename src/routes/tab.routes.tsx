@@ -1,14 +1,33 @@
-import { BottomMenu } from "@components/BottomMenu";
+import { useEffect, useState } from "react";
+import { getBottomSpace } from "react-native-iphone-x-helper";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+
+import firestore from "@react-native-firebase/firestore";
+
+import { useAuth } from "@hooks/auth";
+import { useTheme } from "styled-components/native";
+
+import { BottomMenu } from "@components/BottomMenu";
+
 import { Home } from "@screens/Home";
 import { Orders } from "@screens/Orders";
-import { getBottomSpace } from "react-native-iphone-x-helper";
-import { useTheme } from "styled-components/native";
 
 const Tab = createBottomTabNavigator();
 
 export function TabRoutes() {
   const theme = useTheme();
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState(0);
+
+  useEffect(() => {
+    const unsubscribe = firestore()
+      .collection("orders")
+      .where("status", "==", "Pronto")
+      .where("waiter_id", "==", user?.id)
+      .onSnapshot((snapshot) => setNotifications(snapshot.docs.length));
+
+    return unsubscribe;
+  }, []);
 
   return (
     <Tab.Navigator
@@ -39,7 +58,11 @@ export function TabRoutes() {
         options={{
           tabBarIcon({ color }) {
             return (
-              <BottomMenu color={color} title="Pedidos" notifications={0} />
+              <BottomMenu
+                color={color}
+                title="Pedidos"
+                notifications={notifications}
+              />
             );
           },
         }}
