@@ -11,7 +11,8 @@
       "@services/*": ["src/services/*"],
       "@utils/*": ["src/utils/*"],
       "@hooks/*": ["src/hooks/*"],
-      "@dtos/*": ["src/dtos/*"]
+      "@dtos/*": ["src/dtos/*"],
+      "@routes/*": ["src/routes/*"]
     }
   }
 }

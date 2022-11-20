@@ -1,12 +1,12 @@
 import { useState, useCallback } from "react";
 import { TouchableOpacity, FlatList } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTheme } from "styled-components/native";
 
 import firestore from "@react-native-firebase/firestore";
 
-import { HomeScreenProps } from "@dtos/navigation";
+import { useAuth } from "@hooks/auth";
 
 import { Search } from "@components/Search";
 import { ProductCard, ProductProps } from "@components/ProductCard";
@@ -25,7 +25,10 @@ import {
   NewProductButton,
 } from "./styles";
 
-export function Home({ navigation, route }: HomeScreenProps) {
+export function Home() {
+  const { user, signOut } = useAuth();
+  const navigation = useNavigation();
+
   const theme = useTheme();
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState<ProductProps[]>([]);
@@ -62,11 +65,13 @@ export function Home({ navigation, route }: HomeScreenProps) {
   }
 
   function handleOpenProduct(productId: string) {
-    return () => navigation.navigate("product", { id: productId });
+    return user?.isAdmin
+      ? () => navigation.navigate("product", { id: productId })
+      : () => navigation.navigate("order");
   }
 
   function handleAddProduct() {
-    return () => navigation.navigate("product");
+    return () => navigation.navigate(user?.isAdmin ? "product" : "orders");
   }
 
   useFocusEffect(
@@ -80,10 +85,10 @@ export function Home({ navigation, route }: HomeScreenProps) {
       <Header>
         <Greeting>
           <GreetingEmoji source={happyEmoji} />
-          <GreetingText>Olá, Admin</GreetingText>
+          <GreetingText>Olá, {user?.name}</GreetingText>
         </Greeting>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={signOut}>
           <MaterialIcons name="logout" color={theme.COLORS.TITLE} size={24} />
         </TouchableOpacity>
       </Header>
@@ -117,9 +122,11 @@ export function Home({ navigation, route }: HomeScreenProps) {
         }}
       />
 
-      <NewProductButton type="secondary" onPress={handleAddProduct()}>
-        Cadastrar Pizza
-      </NewProductButton>
+      {user?.isAdmin && (
+        <NewProductButton type="secondary" onPress={handleAddProduct()}>
+          Cadastrar Pizza
+        </NewProductButton>
+      )}
     </Container>
   );
 }

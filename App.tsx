@@ -9,7 +9,6 @@ import { DMSerifDisplay_400Regular } from "@expo-google-fonts/dm-serif-display";
 
 import theme from "./src/theme";
 import { Routes } from "./src/routes";
-import { Orders } from "@screens/Orders";
 
 import { AuthProvider } from "@hooks/auth";
 
@@ -32,7 +31,7 @@ export default function App() {
             backgroundColor="transparent"
             translucent
           />
-          <Orders />
+          <Routes />
         </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

@@ -11,7 +11,7 @@ import * as ImagePicker from "expo-image-picker";
 import storage from "@react-native-firebase/storage";
 import firestore from "@react-native-firebase/firestore";
 
-import { ProductScreenProps } from "@dtos/navigation";
+import type { ProductScreenProps } from "@routes/types";
 
 import { Input } from "@components/Input";
 import { Photo } from "@components/Photo";

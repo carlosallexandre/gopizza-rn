@@ -4,6 +4,7 @@ import { FlatList } from "react-native";
 import { OrderCard, StatusTypesProps } from "@components/OrderCard";
 
 import { Container, Header, Title, Divider } from "./styles";
+import { useNavigation } from "@react-navigation/native";
 
 interface Order {
   id: string;
@@ -11,6 +12,8 @@ interface Order {
 }
 
 export function Orders() {
+  const navigation = useNavigation();
+
   const [orders, setOrders] = useState<Order[]>([
     { id: "1", status: "Preparando" },
     { id: "2", status: "Pronto" },
@@ -18,6 +21,10 @@ export function Orders() {
     { id: "4", status: "Preparando" },
     { id: "5", status: "Preparando" },
   ]);
+
+  function handleOpenOrder(orderId: string) {
+    return () => navigation.navigate("order", { id: orderId });
+  }
 
   return (
     <Container>
@@ -29,7 +36,11 @@ export function Orders() {
         data={orders}
         keyExtractor={(order) => order.id}
         renderItem={({ item, index }) => (
-          <OrderCard index={index} status={item.status} />
+          <OrderCard
+            index={index}
+            status={item.status}
+            onPress={handleOpenOrder(item.id)}
+          />
         )}
         numColumns={2}
         showsVerticalScrollIndicator={false}
